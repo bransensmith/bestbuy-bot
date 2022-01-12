@@ -108,11 +108,8 @@ def events_log(file, event):
 
     opened_file = open(file, 'a')
 
-    object_to_write = current_time + event
-    len_of_text = len(object_to_write)
-
     with opened_file as file_write:
-        file_write.write(current_time + event + '\n' + ('-' * len_of_text) + '\n')
+        file_write.write(current_time + event + '\n')
 
     opened_file.close()
 
