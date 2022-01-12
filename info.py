@@ -3,6 +3,7 @@ key_words = ['out of stock', 'sold out', 'not available']
 # BestBuy
 account_pass_bestbuy = ''
 account_email_bestbuy = ''
+first_name = ''
 
 personal_email = ''
 
