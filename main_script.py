@@ -140,13 +140,13 @@ def account_login(account_email, account_password):
             return True
 
         else:
-            raise Exception
+            raise Exception('Sign In Script Error')
 
     except Exception as Login_ScriptError:
 
         emails('** Script Error **', 'Sign In Error')
 
-        events_log('errors.txt', 'Sign In Script Error' + '\n' + str(Login_ScriptError))
+        events_log('errors.txt',  str(Login_ScriptError))
 
         return False
 
