@@ -108,8 +108,11 @@ def events_log(file, event):
 
     opened_file = open(file, 'a')
 
+    object_to_write = current_time + event
+    len_of_text = len(object_to_write)
+
     with opened_file as file_write:
-        file_write.write('\n' + current_time + event + '\n' + ('-' * 80) + '\n')
+        file_write.write(current_time + event + '\n' + ('-' * len_of_text) + '\n')
 
     opened_file.close()
 
@@ -127,9 +130,17 @@ def account_login(account_email, account_password):
 
         WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button'))).click()
 
-        sleep(10)
+        # verify Name on Page
 
-        return True
+        profile_name_check = WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, 'account'
+                                                                                                            '-button '
+                                                                                             ))).text
+        
+        if info.first_name in profile_name_check:
+            return True
+
+        else:
+            raise Exception
 
     except Exception as Login_ScriptError:
 
