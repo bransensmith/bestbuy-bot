@@ -262,6 +262,7 @@ def verify_account():
 
 
 def auto_cart_main():
+
     try:
         stock_error = WebDriverWait(driver, 10).until(
             ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
@@ -270,6 +271,8 @@ def auto_cart_main():
         events_log('errors.txt', 'Inventory Type Issue' + '\n' + stock_error)
 
     except:
+
+        events_log('log.txt', 'Bot Successfully Started')
 
         try:
 
@@ -357,14 +360,12 @@ def main():
         driver.get(info.location_link_bestbuy)
 
         if set_store_location(info.target_store_zip) is True:
-
             driver.get(info.item_link_bestbuy)
             auto_cart_main()
-            
+
     driver.close()
     sleep(1)
     driver.quit()
-    
 
 
 if __name__ == '__main__':
