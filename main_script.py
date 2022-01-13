@@ -149,6 +149,11 @@ def account_login(account_email, account_password):
 
 
 def set_store_location(zip_code):
+    
+    # Allow page to load
+    
+    sleep(10)
+
     store_name = WebDriverWait(driver, 10).until(
         ec.presence_of_element_located((By.CLASS_NAME, 'store-display-name'))).text
 
