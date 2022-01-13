@@ -319,9 +319,11 @@ def auto_cart_main():
                                 checking_alert = True
 
                             else:
-                                checking_alert = True
+                               
                                 emails('** Auto-Cart Error **',
                                        'Unknown Final Conditions - Check Mobile App for possible Inventory Error. [2]')
+                                
+                                checking_alert = True
 
                 except Exception as unknown_final:
 
