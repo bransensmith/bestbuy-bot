@@ -132,7 +132,7 @@ def account_login(account_email, account_password):
         profile_name_check = WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, 'account'
                                                                                                             '-button '
                                                                                              ))).text
-        
+
         if info.first_name in profile_name_check:
             return True
 
@@ -141,17 +141,15 @@ def account_login(account_email, account_password):
 
     except Exception as Login_ScriptError:
 
-        emails('** Script Error **', 'Sign In Error')
+        emails('** Auto-Cart Error **', 'Sign In Error')
 
-        events_log('errors.txt',  str(Login_ScriptError))
+        events_log('errors.txt', str(Login_ScriptError))
 
         return False
 
 
 def set_store_location(zip_code):
-    
     # Allow page to load
-    
     sleep(10)
 
     store_name = WebDriverWait(driver, 10).until(
@@ -159,6 +157,7 @@ def set_store_location(zip_code):
 
     if store_name == info.target_store_name:
         return True
+
     else:
 
         try:
@@ -167,6 +166,7 @@ def set_store_location(zip_code):
             find_store.click()
             sleep(2)
             find_store.send_keys(zip_code)
+            sleep(1)
             find_store.send_keys(Keys.ENTER)
             sleep(2)
             select_store = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH,
@@ -183,7 +183,7 @@ def set_store_location(zip_code):
 
         except Exception as Location_ScriptError:
 
-            emails('** Script Error **', 'Location Not Set')
+            emails('** Auto-Cart Error **', 'Location Not Set')
             events_log('errors.txt', 'Location Set Script Error' + '\n' + str(Location_ScriptError))
 
             return False
@@ -219,7 +219,7 @@ def cart_wait():
 
     except Exception as AutoAdd_ScriptError:
 
-        emails('** Script Error **', 'Carting Script Error')
+        emails('** Auto-Cart Error **', 'Carting Script Error')
 
         events_log('errors.txt', 'Carting Script Error' + '\n' + str(AutoAdd_ScriptError))
 
@@ -254,7 +254,7 @@ def verify_account():
 
     except Exception as AutoVerify_ScriptError:
 
-        emails('** Script Error **', '2FA Verify Script Error')
+        emails('** Auto-Cart Error **', '2FA Verify Script Error')
 
         events_log('errors.txt', '2FA Verify Script Error' + '\n' + str(AutoVerify_ScriptError))
 
@@ -275,7 +275,7 @@ def auto_cart_main():
                 driver.refresh()
                 continue
 
-        emails('** Attempting Auto-Cart **', 'Inventory Found.')
+        emails('** Auto-Cart Started **', 'Inventory Found.')
 
         events_log('stock.txt', 'In Stock')
 
@@ -283,7 +283,7 @@ def auto_cart_main():
 
             if verify_account() is True:
 
-                emails('** 2FA Check Complete **', 'Email Verification Passed.')
+                emails('** Auto-Cart Update **', 'Email Verification Passed.')
 
                 try:
                     WebDriverWait(driver, 30).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
@@ -292,52 +292,47 @@ def auto_cart_main():
 
                     while not checking_alert:
 
-                        inventory_status = WebDriverWait(driver, 10).until(
-                            ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+                        try:
 
-                        if inventory_status == 'Searching Inventory':
-                            pass
+                            inventory_status = WebDriverWait(driver, 30).until(
+                                ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                        elif any(word in inventory_status.lower() for word in info.key_words):
+                            if inventory_status == 'Searching Inventory':
+                                pass
 
-                            emails('** Auto-Cart Update **', inventory_status)
+                            elif any(word in inventory_status.lower() for word in info.key_words):
 
-                            checking_alert = True
+                                emails('** Auto-Cart Error **', inventory_status)
 
-                        else:
+                                checking_alert = True
+
+                            sleep(3)
+
+                        except:
+
                             unknown_link = driver.current_url
-                            cart_count = WebDriverWait(driver, 10).until(
-                                ec.presence_of_element_located((By.CLASS_NAME, "dot"))).text
 
-                            if unknown_link == info.BestBuy_Link_Cart and cart_count == '1':
+                            if unknown_link == info.BestBuy_Link_Cart:
                                 emails('** Auto-Cart Success **',
                                        'Check Mobile App to finish your purchase.')
 
                                 checking_alert = True
 
-                        sleep(3)
+                            else:
+                                checking_alert = True
+                                emails('** Auto-Cart Error **',
+                                       'Unknown Final Conditions - Check Mobile App for possible Inventory Error. [2]')
 
                 except Exception as unknown_final:
 
-                    unknown_link = driver.current_url
-                    cart_count = WebDriverWait(driver, 10).until(
-                        ec.presence_of_element_located((By.CLASS_NAME, "dot"))).text
+                    emails('** Auto-Cart Error **',
+                           'Unknown Final Conditions - Check Mobile App for possible Inventory Error. [1]')
 
-                    if unknown_link == info.BestBuy_Link_Cart and cart_count == '1':
-                        emails('** Auto-Cart Success **', 'Check Mobile App to finish your purchase.')
-
-                    else:
-                        emails('** Auto-Cart Update **', 'Unknown element interaction. Please see Errors.txt for '
-                                                         'Exception(s)' + ('\n' * 2) + 'Check App for Possible '
-                                                                                       'Inventory mistake: '
-                                                                                       '')
-
-                        events_log('errors.txt', 'auto_cart_main Script Error' + '\n' + str(
-                            unknown_final) + ' Current URL Link: ' + unknown_link)
+                    events_log('errors.txt', 'Script Error' + '\n' + str(unknown_final))
 
     except Exception as Script_Error:
 
-        emails('** Script Error **', 'auto_cart_main Script Error')
+        emails('** Auto-Cart Error **', 'auto_cart_main Script Error')
 
         events_log('errors.txt', 'auto_cart_main Script Error' + '\n' + str(Script_Error))
 
@@ -357,8 +352,9 @@ def main():
                 stock_error = WebDriverWait(driver, 10).until(
                     ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
 
-                emails('** Inventory Type Issue **', 'auto_cart_main Inventory Issue: ' + stock_error)
+                emails('** Auto-Cart Error **', 'Inventory Type Issue: ' + stock_error)
                 events_log('errors.txt', 'Inventory Type Issue' + '\n' + stock_error)
+
 
             except:
                 events_log('log.txt', 'Bot Successfully Started')
