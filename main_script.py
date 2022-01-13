@@ -360,9 +360,11 @@ def main():
 
             driver.get(info.item_link_bestbuy)
             auto_cart_main()
-
-    driver.quit()
+            
     driver.close()
+    sleep(1)
+    driver.quit()
+    
 
 
 if __name__ == '__main__':
