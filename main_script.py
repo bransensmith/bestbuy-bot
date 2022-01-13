@@ -19,7 +19,7 @@ def emails(subject, body):
     msg = EmailMessage()
     msg.set_content(body)
 
-    msg['subject'] = '[Alert] ' + subject
+    msg['subject'] = ("\033[1;34;1m" + '[Alert] ' + subject)
     msg['to'] = info.personal_email
 
     user = info.gmail_username
@@ -374,4 +374,3 @@ if __name__ == '__main__':
     driver = uc.Chrome(options=chrome_options)
 
     main()
-
