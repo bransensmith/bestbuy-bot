@@ -141,7 +141,7 @@ def account_login(account_email, account_password):
 
     except Exception as Login_ScriptError:
 
-        emails('Auto-Cart Error', 'Sign In Error')
+        emails('Auto-Cart Error', Login_ScriptError)
 
         events_log('errors.txt', str(Login_ScriptError))
 
@@ -150,7 +150,7 @@ def account_login(account_email, account_password):
 
 def set_store_location(zip_code):
     # Allow page to load
-    sleep(10)
+    sleep(5)
 
     store_name = WebDriverWait(driver, 10).until(
         ec.presence_of_element_located((By.CLASS_NAME, 'store-display-name'))).text
@@ -208,18 +208,26 @@ def cart_wait():
                 add_to_cart = WebDriverWait(driver, 5).until(
                     ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
                 add_to_cart.click()
-                WebDriverWait(driver, 8).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
 
-                verify_check_account = True
+                try:
+                    WebDriverWait(driver, 5).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
+                    return True
 
-            finally:
-                continue
+                except:
+                    pre_inventory_status = WebDriverWait(driver, 5).until(
+                        ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-        return True
+                    if any(word in pre_inventory_status.lower() for word in info.key_words):
+
+                        emails('Auto-Cart Error', pre_inventory_status)
+                        return False
+                    
+            except:
+                pass
 
     except Exception as AutoAdd_ScriptError:
 
-        emails('Auto-Cart Error', 'Carting Script Error')
+        emails('Auto-Cart Error', AutoAdd_ScriptError)
 
         events_log('errors.txt', 'Carting Script Error' + '\n' + str(AutoAdd_ScriptError))
 
@@ -264,7 +272,7 @@ def verify_account():
 def auto_cart_main():
 
     try:
-        stock_error = WebDriverWait(driver, 10).until(
+        stock_error = WebDriverWait(driver, 5).until(
             ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
 
         emails('Auto-Cart Error', 'Inventory Type Issue: ' + stock_error)
@@ -283,9 +291,8 @@ def auto_cart_main():
                     WebDriverWait(driver, 7).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
                     find_button_cart = True
 
-                finally:
+                except:
                     driver.refresh()
-                    continue
 
             emails('Auto-Cart Started', 'Inventory Found.')
 
