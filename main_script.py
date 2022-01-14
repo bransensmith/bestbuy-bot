@@ -19,7 +19,7 @@ def emails(subject, body):
     msg = EmailMessage()
     msg.set_content(body)
 
-    msg['subject'] = ("\033[1;34;1m" + '[Alert] ' + subject)
+    msg['subject'] = ('[Alert] ' + subject)
     msg['to'] = info.personal_email
 
     user = info.gmail_username
