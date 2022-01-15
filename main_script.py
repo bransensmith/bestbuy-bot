@@ -4,7 +4,6 @@ import smtplib
 from datetime import datetime
 from email.message import EmailMessage
 from time import sleep
-import info as info
 
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
@@ -13,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+
+import info as info
 
 
 def emails(subject, body):
@@ -116,7 +117,6 @@ def events_log(file, event):
 
 def account_login(account_email, account_password):
     try:
-
         bestbuy_email = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'fld-e')))
         bestbuy_email.click()
         bestbuy_email.send_keys(account_email)
@@ -149,44 +149,47 @@ def account_login(account_email, account_password):
 
 
 def set_store_location(zip_code):
-    # Allow page to load
-    sleep(5)
+    try:
+        store_name = WebDriverWait(driver, 10).until(
+            ec.presence_of_element_located((By.CLASS_NAME, 'store-display-name'))).text
 
-    store_name = WebDriverWait(driver, 10).until(
-        ec.presence_of_element_located((By.CLASS_NAME, 'store-display-name'))).text
-
-    if store_name == info.target_store_name:
-        return True
-
-    else:
-
-        try:
-            find_store = WebDriverWait(driver, 10).until(
-                ec.presence_of_element_located((By.CLASS_NAME, 'zip-code-input')))
-            find_store.click()
-            sleep(2)
-            find_store.send_keys(zip_code)
-            sleep(1)
-            find_store.send_keys(Keys.ENTER)
-            sleep(2)
-            select_store = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH,
-                                                                                           '/html/body/div['
-                                                                                           '2]/main/div[2]/div/div['
-                                                                                           '1]/div/div/ul/li[1]/div['
-                                                                                           '1]/div/div['
-                                                                                           '2]/div/div/div/div['
-                                                                                           '3]/button')))
-            select_store.click()
-            sleep(2)
-
+        if store_name == info.target_store_name:
             return True
 
-        except Exception as Location_ScriptError:
+        else:
 
-            emails('Auto-Cart Error', 'Location Not Set')
-            events_log('errors.txt', 'Location Set Script Error' + '\n' + str(Location_ScriptError))
+            try:
+                find_store = WebDriverWait(driver, 10).until(
+                    ec.presence_of_element_located((By.CLASS_NAME, 'zip-code-input')))
+                find_store.click()
+                sleep(1)
+                find_store.send_keys(zip_code)
+                sleep(1)
+                find_store.send_keys(Keys.ENTER)
+                sleep(1)
+                select_store = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH,
+                                                                                               '/html/body/div['
+                                                                                               '2]/main/div[2]/div/div['
+                                                                                               '1]/div/div/ul/li['
+                                                                                               '1]/div[ '
+                                                                                               '1]/div/div['
+                                                                                               '2]/div/div/div/div['
+                                                                                               '3]/button')))
+                select_store.click()
+                sleep(1)
 
-            return False
+                return True
+
+            except:
+
+                raise Exception('Location Not Set')
+
+    except Exception as location_error:
+
+        emails('Auto-Cart Error', location_error)
+        events_log('errors.txt', location_error)
+
+        return False
 
 
 def cart_wait():
@@ -218,10 +221,9 @@ def cart_wait():
                         ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
                     if any(word in pre_inventory_status.lower() for word in info.key_words):
-
                         emails('Auto-Cart Error', pre_inventory_status)
                         return False
-                    
+
             except:
                 pass
 
@@ -270,7 +272,6 @@ def verify_account():
 
 
 def auto_cart_main():
-
     try:
         stock_error = WebDriverWait(driver, 5).until(
             ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
@@ -288,14 +289,13 @@ def auto_cart_main():
             while not find_button_cart:
 
                 try:
-                    WebDriverWait(driver, 7).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+                    WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
                     find_button_cart = True
 
                 except:
                     driver.refresh()
 
             emails('Auto-Cart Started', 'Inventory Found.')
-
             events_log('stock.txt', 'In Stock')
 
             if cart_wait() is True:
@@ -310,6 +310,8 @@ def auto_cart_main():
                         checking_alert = False
 
                         while not checking_alert:
+
+                            unknown_link = driver.current_url
 
                             try:
 
@@ -329,8 +331,6 @@ def auto_cart_main():
 
                             except:
 
-                                unknown_link = driver.current_url
-
                                 if unknown_link == info.BestBuy_Link_Cart:
                                     emails('Auto-Cart Success',
                                            'Check Mobile App to finish your purchase.')
@@ -339,24 +339,17 @@ def auto_cart_main():
 
                                 else:
 
-                                    emails('Auto-Cart Error',
-                                           'Unknown Final Conditions - Check Mobile App for possible Inventory Error. '
-                                           '[2]')
+                                    raise Exception
 
-                                    checking_alert = True
+                    except:
 
-                    except Exception as unknown_final:
-
-                        emails('Auto-Cart Error',
-                               'Unknown Final Conditions - Check Mobile App for possible Inventory Error. [1]')
-
-                        events_log('errors.txt', 'Script Error' + '\n' + str(unknown_final))
+                        raise Exception('Unknown Final Elements.')
 
         except Exception as Script_Error:
 
-            emails('Auto-Cart Error', 'auto_cart_main Script Error')
+            emails('Auto-Cart Error', Script_Error)
 
-            events_log('errors.txt', 'auto_cart_main Script Error' + '\n' + str(Script_Error))
+            events_log('errors.txt', str(Script_Error))
 
 
 def main():
