@@ -214,13 +214,20 @@ def cart_wait():
                     ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
                 if any(word in pre_inventory_status.lower() for word in info.key_words):
-                    emails('Auto-Cart Error', 'Pre verify Error:' + pre_inventory_status)
+                    emails('Auto-Cart Error', 'Pre Verify Inventory Change (Testing Result)')
 
                     return False
-                
+
             except:
 
-                pass
+                unknown_link = driver.current_url
+                if unknown_link == info.BestBuy_Link_Cart:
+                    emails('Auto-Cart Success',
+                           'Pre Verify Carting (Testing Result)')
+                    return False
+
+                else:
+                    pass
 
         return True
 
