@@ -39,8 +39,8 @@ Auto-Cart waits for inventory and when it’s found, the Bot enters the item que
 2.	Enter 2FA check using your attached Gmail account
 3.	Retrieves Key from your Email and passes to the email verify Function 
 
-Once the 2FA check has been completed successfully, the script will wait for inventory message updates
-If your select store has available inventory, the item will automatically be added to your cart where you then have 10 minutes to complete your purchase through your mobile app.
+Once the 2FA check has been completed successfully, the script will wait for inventory message updates.
+If your select store has available inventory, the item will automatically be added to your cart where you then have 10 minutes to complete your purchase through your mobile app. Otherwise, the Bot will alert you of other conditions.
 
 
 
