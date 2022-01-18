@@ -26,7 +26,7 @@ ____________
 About
 
 This Script is designed to run on BestBuy.com and only works on Hot-Items such as Graphics cards, PS5 Consoles, XBOX Consoles, Nintendo Systems, or any other type of limited stock item. 
-This Script is designed to check for website element changes every 5 seconds to determine inventory status (In-stock / out of stock). When an object is found to be in stock, the script will start the Auto-Cart Function.
+This Bot looks for website element changes every 5 seconds to determine inventory status (In-stock / out of stock). When an object is found to be in stock, the script will start the Auto-Cart function.
 
  
 
