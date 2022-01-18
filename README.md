@@ -42,6 +42,8 @@ Auto-Cart waits for inventory and when it’s found, the Bot enters the item que
 Once the 2FA check has been completed successfully, the script will wait for inventory message updates.
 If your select store has available inventory, the item will automatically be added to your cart where you then have 10 minutes to complete your purchase through your mobile app. Otherwise, the Bot will alert you of other conditions.
 
+Website Interactions using Selenium have been built in iterations - meaning with each Hot Item restock I have on average 15 minutes to dig through new HTML pages to find the correct elements and build the necessary function. With each restock, the bot is improved along with its potential error handling capabilities. 
+
 
 
 
