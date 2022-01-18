@@ -31,7 +31,7 @@ This Bot looks for website element changes every 5 seconds to determine inventor
  
 
 How Auto-Cart Works 
-The script initially logs into your BestBuy account and then sets the preferred store location to your specified preference in info.py
+The script initially logs into your BestBuy account and then sets the preferred store location to your specified preference in info.py.
 Auto-Cart waits for inventory and when it’s found, the Bot enters the item queue following these steps:
  
 
