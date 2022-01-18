@@ -238,7 +238,6 @@ def cart_wait():
 
 def verify_account():
 
-
     try:
         password_verify = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
         password_verify.click()
@@ -275,6 +274,8 @@ def verify_account():
 
 def auto_cart_main():
     try:
+        # check product inventory type (used or new)
+
         stock_error = WebDriverWait(driver, 5).until(
             ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
 
@@ -283,9 +284,13 @@ def auto_cart_main():
 
     except:
 
+        # if product inventory type is New - Start Bot
+
         events_log('log.txt', 'Bot Successfully Started')
 
         try:
+
+            # loop until Add to Cart button becomes clickable (In Stock)
 
             find_button_cart = False
             while not find_button_cart:
@@ -295,7 +300,12 @@ def auto_cart_main():
                     find_button_cart = True
 
                 except:
+
+                    # refresh page after waiting 5 seconds (not clickable)
+
                     driver.refresh()
+
+            # when Add to Cart button is Clickable
 
             emails('Auto-Cart Started', 'Inventory Found.')
             events_log('stock.txt', 'In Stock')
@@ -307,21 +317,25 @@ def auto_cart_main():
                     emails('Auto-Cart Update', 'Email Verification Passed.')
 
                     try:
-                        WebDriverWait(driver, 30).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
+                        # wait for stock pop-up status box (15 Seconds)
+
+                        WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
+
+                        # read pop-up box status messages, loop until condition is met.
 
                         checking_alert = False
-
                         while not checking_alert:
 
-                            unknown_link = driver.current_url
-
                             try:
-
-                                inventory_status = WebDriverWait(driver, 30).until(
+                                inventory_status = WebDriverWait(driver, 10).until(
                                     ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+
+                                # if message says 'Searching' - continue
 
                                 if inventory_status == 'Searching Inventory':
                                     pass
+
+                                # if message contains error key word - break loop
 
                                 elif any(word in inventory_status.lower() for word in info.key_words):
 
@@ -329,9 +343,15 @@ def auto_cart_main():
 
                                     checking_alert = True
 
-                                sleep(3)
+                                sleep(5)
 
                             except:
+
+                                # if no pop-up box is displayed, check URL for status
+
+                                unknown_link = driver.current_url
+
+                                # if URL is cart address, item is now in the cart
 
                                 if unknown_link == info.BestBuy_Link_Cart:
                                     emails('Auto-Cart Success',
@@ -339,13 +359,27 @@ def auto_cart_main():
 
                                     checking_alert = True
 
+                                # unknown HTML interaction
+
                                 else:
-
                                     raise Exception
-
                     except:
 
-                        raise Exception('Unknown Final Elements.')
+                        # if no pop-up box is displayed, check URL for status
+
+                        unknown_link = driver.current_url
+
+                        # if URL is cart address, item is now in the cart
+
+                        if unknown_link == info.BestBuy_Link_Cart:
+                            emails('Auto-Cart Success',
+                                   'Check Mobile App to finish your purchase.')
+
+                        # unknown HTML interaction
+
+                        else:
+
+                            raise Exception('Unknown Final Elements.')
 
         except Exception as Script_Error:
 
