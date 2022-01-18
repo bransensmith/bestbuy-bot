@@ -1,13 +1,15 @@
 
-# BestBuy Account Info
-account_pass_bestbuy = ''
+# BestBuy Account Info - Your BestBuy Email must match the Gmail account used below in the Gmail SMTP server!
+
 account_email_bestbuy = ''
+account_pass_bestbuy = ''
+
 
 
 # your first name on BestBuy account
 first_name = ''
 
-# your personal email to recieve alerts
+# your personal email to recieve alerts (doesnt have to be Gmail)
 personal_email = ''
 
 
@@ -15,17 +17,17 @@ personal_email = ''
 item_link_bestbuy = ''
 
 
-# name of your local BestBuy store (city name) and its Zip Code
+# name of your local BestBuy store (City name) and its Zip Code
 target_store_name = ''
 target_store_zip = ''
 
 
-# your gmail account username for outgoing alert system + app passwrod (different from normal password)
+# your gmail account username for SMTP outgoing alert system + app passwrod (different from normal password)
 gmail_username = ''
 gmail_app_pass = ''
 
 
-
+------------------------------------------------
 
 
 # dont chnage this for outgoing google domain!
