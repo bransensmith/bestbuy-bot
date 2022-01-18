@@ -159,14 +159,16 @@ def set_store_location(zip_code):
         else:
 
             try:
+                # time sensitive input fields
+
                 find_store = WebDriverWait(driver, 10).until(
                     ec.presence_of_element_located((By.CLASS_NAME, 'zip-code-input')))
                 find_store.click()
-                sleep(1)
+                sleep(3)
                 find_store.send_keys(zip_code)
-                sleep(1)
+                sleep(2)
                 find_store.send_keys(Keys.ENTER)
-                sleep(1)
+                sleep(3)
                 select_store = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH,
                                                                                                '/html/body/div['
                                                                                                '2]/main/div[2]/div/div['
@@ -176,7 +178,7 @@ def set_store_location(zip_code):
                                                                                                '2]/div/div/div/div['
                                                                                                '3]/button')))
                 select_store.click()
-                sleep(1)
+                sleep(5)
 
                 return True
 
