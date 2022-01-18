@@ -203,41 +203,35 @@ def cart_wait():
             ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
         pop_up_box.click()
 
-        verify_check_account = False
-
-        while not verify_check_account:
+        unknown_link = driver.current_url
+        while 'signin?token' not in unknown_link:
+            add_to_cart = WebDriverWait(driver, 5).until(
+                ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+            add_to_cart.click()
 
             try:
-                add_to_cart = WebDriverWait(driver, 5).until(
-                    ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-                add_to_cart.click()
+                pre_inventory_status = WebDriverWait(driver, 5).until(
+                    ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                try:
-                    WebDriverWait(driver, 5).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
-                    return True
+                if any(word in pre_inventory_status.lower() for word in info.key_words):
+                    emails('Auto-Cart Error', 'Pre verify Error:' + pre_inventory_status)
 
-                except:
-                    pre_inventory_status = WebDriverWait(driver, 5).until(
-                        ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
-
-                    if any(word in pre_inventory_status.lower() for word in info.key_words):
-                        emails('Auto-Cart Error', pre_inventory_status)
-                        return False
-
+                    return False
+                
             except:
+
                 pass
+
+        return True
 
     except Exception as AutoAdd_ScriptError:
 
         emails('Auto-Cart Error', AutoAdd_ScriptError)
-
         events_log('errors.txt', 'Carting Script Error' + '\n' + str(AutoAdd_ScriptError))
-
         return False
 
 
 def verify_account():
-
     try:
         password_verify = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
         password_verify.click()
