@@ -7,7 +7,7 @@ Requirements
 
 •	Python Packages; Selenium Web Driver; BeautifulSoup4, undetected-chrome driver.
 
-•	Requires Gmail Account with an established App Password. See the link below for details. 
+•	Requires a Gmail account with an established App Password. See the link below for details. 
     https://support.google.com/accounts/answer/185833?hl=en
 
 ____________
