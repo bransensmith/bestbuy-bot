@@ -4,7 +4,7 @@ account_pass_bestbuy = ''
 account_email_bestbuy = ''
 
 
-# your first name on account 
+# your first name on BestBuy account
 first_name = ''
 
 # your personal email to recieve alerts
