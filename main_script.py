@@ -237,18 +237,20 @@ def cart_wait():
 
 
 def verify_account():
-    continue_button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button')))
+
 
     try:
         password_verify = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
         password_verify.click()
         password_verify.send_keys(info.account_pass_bestbuy)
 
+        continue_button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button')))
         continue_button.click()
 
         email_verify = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'email-radio')))
         email_verify.click()
 
+        continue_button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button')))
         continue_button.click()
 
         email_code = fetch_email_key()
@@ -257,6 +259,7 @@ def verify_account():
         email_verify_code.click()
         email_verify_code.send_keys(email_code)
 
+        continue_button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button')))
         continue_button.click()
 
         return True
