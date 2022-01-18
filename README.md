@@ -4,6 +4,8 @@ BestBuy-Auto-Cart
 Working as of 1/18/2022 
 
 Requirements
+____________
+
 •	Python Packages; Selenium Web Driver; BeautifulSoup4, undetected-chrome driver.
 
 •	Requires Gmail Account with an established App Password. See the link below for details. 
@@ -11,6 +13,8 @@ Requirements
 
  
 Notes
+____________
+
 •	Your BestBuy account email must be the same as your Google email account used for outgoing alerts in info.py.
 
 •	This script only works if your set store location has inventory, future releases may include store options within a set range (250 miles).
@@ -20,7 +24,9 @@ Notes
 •	I recommend using a scheduler to run the scripts during weekdays only.
  
 
-About 
+About
+____________
+
 This Script is designed to run on BestBuy.com and only works on Hot-Items such as Graphics cards, PS5 Consoles, XBOX Consoles, Nintendo Systems, or any other type of limited stock item. 
 This Script is designed to check for website element changes every 5 seconds to determine inventory status (In-stock / out of stock). When an object is found to be in stock, the script will start the Auto-Cart Function.
 
