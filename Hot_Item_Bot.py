@@ -292,17 +292,16 @@ def auto_cart_main():
         try:
 
             # loop until Add to Cart button becomes clickable (In Stock)
-
-            while True:
+            button_watch = True
+            while button_watch is True:
 
                 try:
                     WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-                    break
+                    button_watch = False
 
                 except:
                     # refresh page after waiting 5 seconds (not clickable)
                     driver.refresh()
-                    continue
 
             # when Add to Cart button is Clickable
 
@@ -322,8 +321,8 @@ def auto_cart_main():
 
                         # read pop-up box status messages, loop until condition is met.
 
-
-                        while True:
+                        message_value = True
+                        while message_value is True:
 
                             try:
                                 inventory_status = WebDriverWait(driver, 10).until(
@@ -340,7 +339,7 @@ def auto_cart_main():
 
                                     emails('Auto-Cart Error', inventory_status)
 
-                                    break
+                                    message_value = False
 
                                 sleep(3)
 
@@ -356,7 +355,7 @@ def auto_cart_main():
                                     emails('Auto-Cart Success',
                                            'Check Mobile App to finish your purchase.')
 
-                                    break
+                                    message_value = False
 
                                 # unknown HTML interaction
 
