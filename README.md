@@ -5,7 +5,7 @@ Working as of 1/18/2022
 ____________
 Requirements
 
-•	Python Packages; Selenium Web Driver; BeautifulSoup4, undetected-chrome driver.
+•	Python Packages; Selenium Web Driver; BeautifulSoup4, undetected-chromedriver.
 
 •	Requires a Gmail account with an established App Password. See the link below for details. 
     https://support.google.com/accounts/answer/185833?hl=en
@@ -35,9 +35,9 @@ The script initially logs into your BestBuy account and then sets the preferred 
 Auto-Cart waits for inventory and when it’s found, the Bot enters the item queue following these steps:
  
 
-1.	Waits For verification Element
+1.	Waits for verification element
 2.	Enter 2FA check using your attached Gmail account
-3.	Retrieves Key from your Email and passes to the email verify Function 
+3.	Retrieves Key from Email and passes it to BestBuy.com 
 
 Once the 2FA check has been completed successfully, the script will wait for inventory message updates.
 If your select store has available inventory, the item will automatically be added to your cart where you then have 10 minutes to complete your purchase through your mobile app. Otherwise, the Bot will alert you of other conditions.
