@@ -13,12 +13,10 @@ first_name = ''
 personal_email = ''
 
 
-# link to item(s) you want to purchase on BestBuy.com (must be a Hot-Item)
-item_links_bestbuy = [
-    'https://www.bestbuy.com/site/nvidia-geforce-rtx-3060-ti-8gb-gddr6-pci-express-4-0-graphics-card-steel-and-black/6439402.p?skuId=6439402',
-    'https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p?skuId=6428324',
-    'https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149'
-    ]
+# link to item you want to purchase on BestBuy.com (must be a Hot-Item)
+item_links_bestbuy = 'https://www.bestbuy.com/site/nvidia-geforce-rtx-3060-ti-8gb-gddr6-pci-express-4-0-graphics-card-steel-and-black/6439402.p?skuId=6439402'
+
+   
 
 
 
