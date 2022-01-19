@@ -13,27 +13,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-import info
+import info as info
 
 
-class LinkForUpdates:
-    item_link = ''
-
-    def __init__(self, item_link):
-        self.item_link = item_link
-
-
-def emails(subject, body, s_link):
+def emails(subject, body):
     msg = EmailMessage()
-
-    if s_link is False:
-        msg.set_content(body + '\n' * 1 + LinkForUpdates.item_link)
-
-    elif s_link is True:
-        msg.set_content(body + '\n' * 1 + info.BestBuy_Link_Cart)
-
-    elif s_link is None:
-        msg.set_content(body)
+    msg.set_content(body)
 
     msg['subject'] = ('[Alert] ' + subject)
     msg['to'] = info.personal_email
@@ -118,7 +103,7 @@ def fetch_email_key():
 
 
 def events_log(file, event):
-    current_time = datetime.now().strftime('Time %I:%M %p on %m/%d/%y: ')
+    current_time = datetime.now().strftime('time %I:%M %p on %m/%d/%y: ')
 
     opened_file = open(file, 'a')
 
@@ -142,12 +127,11 @@ def account_login(account_email, account_password):
 
         # verify Name on Page
 
-        profile_name_check = WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, 'account'
+        profile_name_check = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'account'
                                                                                                             '-button '
                                                                                              ))).text
 
         if info.first_name in profile_name_check:
-
             return True
 
         else:
@@ -155,9 +139,9 @@ def account_login(account_email, account_password):
 
     except Exception as Login_ScriptError:
 
-        emails('Auto-Cart Error', 'account_login Script Error', None)
+        emails('Auto-Cart Error', Login_ScriptError)
 
-        events_log('errors.txt', 'account_login Script Error: ' + str(Login_ScriptError))
+        events_log('errors.txt', str(Login_ScriptError))
 
         return False
 
@@ -180,7 +164,7 @@ def set_store_location(zip_code):
                 find_store.click()
                 sleep(3)
                 find_store.send_keys(zip_code)
-                sleep(2)
+                sleep(3)
                 find_store.send_keys(Keys.ENTER)
                 sleep(3)
                 select_store = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH,
@@ -192,7 +176,7 @@ def set_store_location(zip_code):
                                                                                                '2]/div/div/div/div['
                                                                                                '3]/button')))
                 select_store.click()
-                sleep(5)
+                sleep(3)
 
                 return True
 
@@ -202,37 +186,15 @@ def set_store_location(zip_code):
 
     except Exception as location_error:
 
-        emails('Auto-Cart Error', 'set_store_location Script Error', None)
-
-        events_log('errors.txt', 'set_store_location Script Error: ' + str(location_error))
+        emails('Auto-Cart Error', location_error)
+        events_log('errors.txt', location_error)
 
         return False
 
 
-def inventory_change_watch():
-    try:
-
-        stock_error = WebDriverWait(driver, 3).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
-
-        emails('Auto-Cart Error', 'Inventory Type Issue: ' + stock_error, False)
-        events_log('errors.txt', 'Inventory Type Issue: ' + stock_error)
-
-        return None
-
-    except:
-
-        try:
-            WebDriverWait(driver, 3).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-            return True
-
-        except:
-
-            return False
-
-
 def cart_wait():
     try:
+
         add_to_cart = WebDriverWait(driver, 10).until(
             ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
         add_to_cart.click()
@@ -243,46 +205,36 @@ def cart_wait():
 
         unknown_link = driver.current_url
         while 'signin?token' not in unknown_link:
+            add_to_cart = WebDriverWait(driver, 5).until(
+                ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+            add_to_cart.click()
 
             try:
-                add_to_cart = WebDriverWait(driver, 5).until(
-                    ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-                add_to_cart.click()
+                pre_inventory_status = WebDriverWait(driver, 5).until(
+                    ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                try:
-                    pre_inventory_status = WebDriverWait(driver, 5).until(
-                        ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+                if any(word in pre_inventory_status.lower() for word in info.key_words):
+                    emails('Auto-Cart Error', 'Pre Verify Inventory Change (Testing Result)')
 
-                    if any(word in pre_inventory_status.lower() for word in info.key_words):
+                    return False
 
-                        emails('Auto-Cart Error', 'Pre Verify Inventory Change (Testing Result)', False)
-
-                        return False
-
-                except:
-
-                    unknown_link = driver.current_url
-                    if unknown_link == info.BestBuy_Link_Cart:
-                        emails('Auto-Cart Success',
-                               'Pre Verify Carting (Testing Result)', True)
-
-                        return False
-
-                    else:
-
-                        pass
             except:
 
-                pass
+                unknown_link = driver.current_url
+                if unknown_link == info.BestBuy_Link_Cart:
+                    emails('Auto-Cart Success',
+                           'Pre Verify Carting (Testing Result)')
+                    return False
+
+                else:
+                    pass
 
         return True
 
     except Exception as AutoAdd_ScriptError:
 
-        emails('Auto-Cart Error', 'cart_wait Script Error', False)
-
-        events_log('errors.txt', 'cart_wait Script Error: ' + str(AutoAdd_ScriptError))
-
+        emails('Auto-Cart Error', AutoAdd_ScriptError)
+        events_log('errors.txt', 'Carting Script Error' + '\n' + str(AutoAdd_ScriptError))
         return False
 
 
@@ -314,49 +266,102 @@ def verify_account():
 
     except Exception as AutoVerify_ScriptError:
 
-        emails('Auto-Cart Error', '2FA Verify Script Error', False)
+        emails('Auto-Cart Error', '2FA Verify Script Error')
 
-        events_log('errors.txt', '2FA Verify Script Error: ' + str(AutoVerify_ScriptError))
+        events_log('errors.txt', '2FA Verify Script Error' + '\n' + str(AutoVerify_ScriptError))
 
         return False
 
 
 def auto_cart_main():
+    try:
+        # check product inventory type (used or new)
 
-    if cart_wait() is True:
+        stock_error = WebDriverWait(driver, 5).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "inactive-product-message"))).text
 
-        if verify_account() is True:
+        emails('Auto-Cart Error', 'Inventory Type Issue: ' + stock_error)
+        events_log('errors.txt', 'Inventory Type Issue' + '\n' + stock_error)
 
-            emails('Auto-Cart Update', 'Email Verification Passed.', False)
+    except:
 
-            try:
-                # wait for stock pop-up status box (15 Seconds)
+        # if product inventory type is New - Start Bot
 
-                WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
+        events_log('log.txt', 'Bot Successfully Started')
 
-                # read pop-up box status messages, loop until condition is met.
+        try:
 
-                while True:
+            # loop until Add to Cart button becomes clickable (In Stock)
+
+            while True:
+
+                try:
+                    WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+                    break
+
+                except:
+                    # refresh page after waiting 5 seconds (not clickable)
+                    driver.refresh()
+                    continue
+
+            # when Add to Cart button is Clickable
+
+            emails('Auto-Cart Started', 'Inventory Found.')
+            events_log('stock.txt', 'In Stock')
+
+            if cart_wait() is True:
+
+                if verify_account() is True:
+
+                    emails('Auto-Cart Update', 'Email Verification Passed.')
 
                     try:
-                        inventory_status = WebDriverWait(driver, 10).until(
-                            ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+                        # wait for stock pop-up status box (15 Seconds)
 
-                        # if message says 'Searching' - continue
+                        WebDriverWait(driver, 15).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
 
-                        if inventory_status == 'Searching Inventory':
-                            pass
+                        # read pop-up box status messages, loop until condition is met.
 
-                        # if message contains error key word - break loop
 
-                        elif any(word in inventory_status.lower() for word in info.key_words):
+                        while True:
 
-                            emails('Auto-Cart Error', inventory_status, False)
+                            try:
+                                inventory_status = WebDriverWait(driver, 10).until(
+                                    ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                            break
+                                # if message says 'Searching' - continue
 
-                        sleep(5)
+                                if inventory_status == 'Searching Inventory':
+                                    pass
 
+                                # if message contains error key word - break loop
+
+                                elif any(word in inventory_status.lower() for word in info.key_words):
+
+                                    emails('Auto-Cart Error', inventory_status)
+
+                                    break
+
+                                sleep(3)
+
+                            except:
+
+                                # if no pop-up box is displayed, check URL for status
+
+                                unknown_link = driver.current_url
+
+                                # if URL is cart address, item is now in the cart
+
+                                if unknown_link == info.BestBuy_Link_Cart:
+                                    emails('Auto-Cart Success',
+                                           'Check Mobile App to finish your purchase.')
+
+                                    break
+
+                                # unknown HTML interaction
+
+                                else:
+                                    raise Exception
                     except:
 
                         # if no pop-up box is displayed, check URL for status
@@ -367,35 +372,19 @@ def auto_cart_main():
 
                         if unknown_link == info.BestBuy_Link_Cart:
                             emails('Auto-Cart Success',
-                                   'Check Mobile App to finish your purchase.', True)
-
-                            break
+                                   'Check Mobile App to finish your purchase.')
 
                         # unknown HTML interaction
 
                         else:
-                            emails('Auto-Cart Error', 'Unknown Final Elements.', False)
-                            events_log('errors.txt', 'Unknown Final Elements.')
 
-                            break
+                            raise Exception('Unknown Final Elements.')
 
-            except:
+        except Exception as Script_Error:
 
-                # if no pop-up box is displayed, check URL for status
+            emails('Auto-Cart Error', Script_Error)
 
-                unknown_link = driver.current_url
-
-                # if URL is cart address, item is now in the cart
-
-                if unknown_link == info.BestBuy_Link_Cart:
-                    emails('Auto-Cart Success',
-                           'Check Mobile App to finish your purchase.', True)
-
-                # unknown HTML interaction
-
-                else:
-                    emails('Auto-Cart Error', 'Unknown Final Elements.', False)
-                    events_log('errors.txt', 'Unknown Final Elements.')
+            events_log('errors.txt', str(Script_Error))
 
 
 def main():
@@ -406,31 +395,8 @@ def main():
         driver.get(info.location_link_bestbuy)
 
         if set_store_location(info.target_store_zip) is True:
-
-            events_log('log.txt', 'Bot Successfully Started')
-
-            while len(info.item_links_bestbuy) != 0:
-
-                for i in info.item_links_bestbuy:
-
-                    LinkForUpdates.item_link = i
-                    driver.get(i)
-
-                    if inventory_change_watch() is True:
-
-                        emails('Auto-Cart Started', 'Inventory Found', False)
-                        events_log('stock.txt', 'In Stock')
-
-                        auto_cart_main()
-                        info.item_links_bestbuy.remove(i)
-
-                    elif inventory_change_watch() is None:
-
-                        # remove bad object from list
-                        info.item_links_bestbuy.remove(i)
-
-                    else:
-                        pass
+            driver.get(info.item_link_bestbuy)
+            auto_cart_main()
 
     driver.close()
     sleep(1)
