@@ -277,7 +277,7 @@ def verify_account():
 
 
 def auto_cart_main():
-    emails('Auto-Cart Started', 'Inventory Found')
+    emails('Auto-Cart Started', 'Inventory found')
     events_log('stock.txt', 'In Stock ' + ProductNames.item_name)
 
     if cart_wait() is True:
@@ -309,7 +309,7 @@ def auto_cart_main():
 
                         elif any(word in inventory_status.lower() for word in info.key_words):
 
-                            emails('Auto-Cart Error', inventory_status)
+                            emails('Auto-Cart Update', inventory_status)
 
                             message_value = False
 
