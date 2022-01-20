@@ -52,8 +52,7 @@ Website Interactions using Selenium have been built in iterations - meaning with
 
 --------------
  
-
-![ps5](https://user-images.githubusercontent.com/95368430/150408625-ea3599c2-6677-41a1-860d-f04133b5f4a3.jpg)
+![ps5smaller](https://user-images.githubusercontent.com/95368430/150418956-eee08d6e-c1bb-478a-9004-5c9ee0846a1a.jpg)
  
 
 --------------
