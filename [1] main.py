@@ -201,28 +201,25 @@ def set_store_location(zip_code):
 def cart_wait():
     try:
 
-        add_to_cart = WebDriverWait(driver, 10).until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-        add_to_cart.click()
-
-        pop_up_box = WebDriverWait(driver, 10).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
-        pop_up_box.click()
-
         unknown_link = driver.current_url
         while 'signin?token' not in unknown_link:
-            add_to_cart = WebDriverWait(driver, 5).until(
+            add_to_cart = WebDriverWait(driver, 10).until(
                 ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
             add_to_cart.click()
 
             try:
-                pre_inventory_status = WebDriverWait(driver, 5).until(
-                    ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+                WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
+                
+                sleep(10)
+                
+                inventory_status = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                if any(word in pre_inventory_status.lower() for word in info.key_words):
-                    emails('Auto-Cart Error', 'Pre Verify Inventory Change (Testing Result)')
+                if any(word in inventory_status.lower() for word in info.key_words):
+
+                    emails('Auto-Cart Update', inventory_status)
 
                     return False
+
 
             except:
 
@@ -364,8 +361,13 @@ def main():
                     driver.get(i)
 
                     try:
-                        WebDriverWait(driver, 5).until(
+                        add_to_cart = WebDriverWait(driver, 10).until(
                             ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+                        add_to_cart.click()
+
+                        pop_up_box = WebDriverWait(driver, 10).until(
+                            ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
+                        pop_up_box.click()
 
                     except:
                         continue
