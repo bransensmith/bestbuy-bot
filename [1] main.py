@@ -24,8 +24,9 @@ class ProductNames:
 
 
 def emails(subject, body):
+    
     msg = EmailMessage()
-    msg.set_content(body + ':' + '\n' * 2 + ProductNames.item_name)
+    msg.set_content(body + '\n' * 2 + 'Item: ' + ProductNames.item_name)
 
     msg['subject'] = ('[Alert] ' + subject)
     msg['to'] = info.personal_email
