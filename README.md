@@ -11,7 +11,7 @@ Requirements
     https://support.google.com/accounts/answer/185833?hl=en
 
 ____________
-Notes
+Notes \n
 [1] = List supported product scraping targets (multiple product URLs)
 [A] = Single product scraping target (one product URL)
 
