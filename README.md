@@ -1,7 +1,7 @@
 # bestbuy-bot
 
 BestBuy-Auto-Cart
-Working as of 1/18/2022 
+Working as of 1/20/2022 
 ____________
 Requirements
 
