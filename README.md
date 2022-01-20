@@ -47,7 +47,7 @@ Website Interactions using Selenium have been built in iterations - meaning with
 
 --------------
 
-![proof](https://user-images.githubusercontent.com/95368430/150409271-7d1adf34-cabf-4bc0-b431-3c1bd2b87cbe.png)
+![proofsmaller](https://user-images.githubusercontent.com/95368430/150418852-c01089c7-b731-468f-9b6e-b4a720d1d3a1.png)
 
 
 --------------
