@@ -12,7 +12,8 @@ Requirements
 
 ____________
 Notes
-
+[1] = List supported product scraping targets (multiple product URLs)
+[A] = Single product scraping target (one product URL)
 
 •	Your BestBuy account email must be the same as your Google email account used for outgoing alerts in info.py.
 
