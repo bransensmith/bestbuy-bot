@@ -16,16 +16,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 import info as info
 
 
-class LinkForUpdates:
-    item_link = ''
+class ProductNames:
+    item_name = ''
 
-    def __init__(self, item_link):
-        self.item_link = item_link
+    def __init__(self, item_name):
+        self.item_name = item_name
 
 
 def emails(subject, body):
     msg = EmailMessage()
-    msg.set_content(body + '\n' * 2 + LinkForUpdates.item_link)
+    msg.set_content(body + '\n' + ProductNames.item_name)
 
     msg['subject'] = ('[Alert] ' + subject)
     msg['to'] = info.personal_email
@@ -209,9 +209,9 @@ def cart_wait():
 
             try:
                 WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
-                
+
                 sleep(10)
-                
+
                 inventory_status = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
                 if any(word in inventory_status.lower() for word in info.key_words):
@@ -277,14 +277,14 @@ def verify_account():
 
 
 def auto_cart_main():
-    emails('Auto-Cart Started', 'Inventory Found.')
-    events_log('stock.txt', 'In Stock')
+    emails('Auto-Cart Started', 'Inventory Found')
+    events_log('stock.txt', 'In Stock ' + ProductNames.item_name)
 
     if cart_wait() is True:
 
         if verify_account() is True:
 
-            emails('Auto-Cart Update', 'Email Verification Passed.')
+            emails('Auto-Cart Update', 'Email Verification Passed')
 
             try:
                 # wait for stock pop-up status box (15 Seconds)
@@ -325,7 +325,7 @@ def auto_cart_main():
 
                         if unknown_link == info.BestBuy_Link_Cart:
                             emails('Auto-Cart Success',
-                                   'Check Mobile App to finish your purchase.')
+                                   'Check Mobile App to finish your purchase')
 
                             message_value = False
 
@@ -337,7 +337,7 @@ def auto_cart_main():
 
                 if unknown_link == info.BestBuy_Link_Cart:
                     emails('Auto-Cart Success',
-                           'Check Mobile App to finish your purchase.')
+                           'Check Mobile App to finish your purchase')
 
 
 def main():
@@ -357,7 +357,6 @@ def main():
 
                 for i in url_list:
 
-                    LinkForUpdates.item_link = i
                     driver.get(i)
 
                     try:
@@ -368,6 +367,13 @@ def main():
                         pop_up_box = WebDriverWait(driver, 10).until(
                             ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
                         pop_up_box.click()
+
+                        product_name = WebDriverWait(driver, 10).until(
+                            ec.presence_of_element_located((By.CLASS_NAME, "heading-5"))).text
+
+                        # update class name for emails
+
+                        ProductNames.item_name = product_name
 
                     except:
                         continue
