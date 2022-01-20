@@ -45,17 +45,18 @@ If your select store has available inventory, the item will automatically be add
 
 Website Interactions using Selenium have been built in iterations - meaning with each Hot Item restock I have on average 15 minutes to dig through new HTML pages to find the correct elements and build the necessary functions. With each restock, the Bot is improved along with its potential error handling capabilities. 
 
+--------------
 
-![360DAA53-63F8-4316-9964-C1634307A187](https://user-images.githubusercontent.com/95368430/150041175-34af42ef-2f54-48f4-baa3-a419970ed28f.jpeg)
+![proof](https://user-images.githubusercontent.com/95368430/150409271-7d1adf34-cabf-4bc0-b431-3c1bd2b87cbe.png)
 
 
-
+--------------
  
 
 ![ps5](https://user-images.githubusercontent.com/95368430/150408625-ea3599c2-6677-41a1-860d-f04133b5f4a3.jpg)
  
 
-
+--------------
 
 
 
