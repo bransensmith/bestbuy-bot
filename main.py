@@ -1,6 +1,6 @@
 if __name__ == '__main__':
-    import main_bot_script
+    import bot
     import user_info
 
-    main_bot_script.user_info = user_info
-    main_bot_script.main()
+    bot.user_info = user_info
+    bot.main()
