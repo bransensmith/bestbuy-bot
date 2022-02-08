@@ -24,7 +24,7 @@ log = 'log.txt'
 carted = 'carted.txt'
 
 chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument('--headless')
+chrome_options.add_argument('--headless')
 driver = uc.Chrome(options=chrome_options)
 
 global user_info
