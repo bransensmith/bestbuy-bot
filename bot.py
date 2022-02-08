@@ -15,7 +15,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
+# path to file
 import core_info
+
+# path to file
 import user_info
 
 # full path to files
