@@ -1,3 +1,4 @@
+# import sys
 import email
 import imaplib
 import smtplib
@@ -8,6 +9,7 @@ from time import sleep
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
@@ -15,25 +17,90 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import info as info
 
+# full path to files
+errors = 'errors.txt'
+stock = 'stock.txt'
+log = 'log.txt'
+carted = 'carted.txt'
 
-class ProductNames:
+chrome_options = webdriver.ChromeOptions()
+# chrome_options.add_argument('--headless')
+driver = uc.Chrome(options=chrome_options)
+
+global user_info
+
+
+# updates are beyond this point
+class ProductNow:
     item_name = ''
-
-    def __init__(self, item_name):
-        self.item_name = item_name
+    item_image_link = ''
 
 
-def emails(subject, body):
-    
+def email_bugs(subject, body):
     msg = EmailMessage()
-    msg.set_content(body + '\n' * 2 + 'Item: ' + ProductNames.item_name)
+    msg['subject'] = subject
 
-    msg['subject'] = ('[Alert] ' + subject)
-    msg['to'] = info.personal_email
-
-    user = info.gmail_username
+    msg.set_content = body
+    msg['to'] = info.debug_email
+    user = info.outgoing_gmail_username
     msg['from'] = user
-    password = info.gmail_app_pass
+
+    password = info.outgoing_gmail_app_pass
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(user, password)
+    server.send_message(msg)
+
+    server.quit()
+
+
+def email_form(subject, main_alert, more_info):
+    personal_info = (user_info.first_name + ' | ' + user_info.target_store_name + ', ' + user_info.target_store_zip)
+
+    image_link = ProductNow.item_image_link
+    item_name = ProductNow.item_name
+
+    msg = EmailMessage()
+    msg['subject'] = '[ALERT] ' + subject
+
+    msg.set_content(f"""<!DOCTYPE html>
+        <html>
+            <body>
+                 <div style="border-radius: 10px; background-color:#eee;padding:5px">
+
+                        <h2 style="text-align:center; color:red">{main_alert}</h2>
+                    </div>
+
+                <table width="100%" border="0" cellspacing="0" cellpadding="20">
+                    <tr>
+                        <td align="center">
+
+                            <img style="max-height:200px; max-width:200px;" src="{image_link}">
+                            <p style="font-size:12px">{item_name}</p>
+
+                        </td>
+                    </tr>
+                </table>
+                    <div style="text-align:center">
+
+                        <h2 style="background-color: #FFFF00;">*** Status ***</h2>
+
+                        <li>{more_info}</li>
+
+                    </div>
+
+                    <div style="text-align:center; font-size:15px; padding-top:20px">
+
+                        <p style="color:grey;">{personal_info}</p>
+
+                    </div
+            </body>
+        """, subtype='html')
+
+    msg['to'] = user_info.personal_email
+    user = info.outgoing_gmail_username
+    msg['from'] = user
+    password = info.outgoing_gmail_app_pass
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
@@ -45,7 +112,7 @@ def emails(subject, body):
 
 def fetch_email():
     imap = imaplib.IMAP4_SSL(info.imap_url)
-    imap.login(info.gmail_username, info.gmail_app_pass)
+    imap.login(user_info.personal_gmail_username, user_info.personal_gmail_app_pass)
     imap.select('INBOX')
 
     status, data = imap.search(None, '(FROM "BestBuyInfo@emailinfo.bestbuy.com" SUBJECT "purchase" UNSEEN)')
@@ -115,7 +182,7 @@ def events_log(file, event):
     opened_file = open(file, 'a')
 
     with opened_file as file_write:
-        file_write.write(current_time + event + '\n')
+        file_write.write(current_time + '[' + user_info.first_name + '] ' + event + '\n')
 
     opened_file.close()
 
@@ -138,17 +205,17 @@ def account_login(account_email, account_password):
                                                                                                             '-button '
                                                                                              ))).text
 
-        if info.first_name in profile_name_check:
+        if user_info.first_name in profile_name_check:
             return True
 
         else:
-            raise Exception('Sign In Script Error')
+            raise Exception('Sign In Error')
 
     except Exception as Login_ScriptError:
 
-        emails('Auto-Cart Error', 'account_login Script Error')
+        email_bugs('Auto-Cart', 'User: ' + user_info.first_name + '\n' + ' Exception: ' + '[Sign In Error]')
 
-        events_log('errors.txt', str(Login_ScriptError))
+        events_log(errors, 'account_login Script Error: ' + str(Login_ScriptError))
 
         return False
 
@@ -158,7 +225,7 @@ def set_store_location(zip_code):
         store_name = WebDriverWait(driver, 10).until(
             ec.presence_of_element_located((By.CLASS_NAME, 'store-display-name'))).text
 
-        if store_name == info.target_store_name:
+        if store_name == user_info.target_store_name:
             return True
 
         else:
@@ -193,8 +260,9 @@ def set_store_location(zip_code):
 
     except Exception as location_error:
 
-        emails('Auto-Cart Error', 'set_store_location Script Error')
-        events_log('errors.txt', location_error)
+        email_bugs('Auto-Cart', 'User: ' + user_info.first_name + '\n' + ' Exception: ' + '[Store Location Error]')
+
+        events_log(errors, 'set_store_location Script Error: ' + str(location_error))
 
         return False
 
@@ -209,36 +277,40 @@ def cart_wait():
             add_to_cart.click()
 
             try:
-                WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
+                WebDriverWait(driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3")))
 
                 sleep(10)
 
-                inventory_status = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
+                inventory_status = WebDriverWait(driver, 10).until(
+                    ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                if any(word in inventory_status.lower() for word in info.key_words):
+                if any(word in inventory_status.lower() for word in info.key_words_stop):
 
-                    emails('Auto-Cart Update', inventory_status)
-
+                    email_form('Auto-Cart', inventory_status, 'Your selected store has no available inventory.')
                     return False
 
+                elif any(word in inventory_status.lower() for word in info.key_words_continue):
 
-            except:
+                    continue
+
+            except TimeoutException:
 
                 unknown_link = driver.current_url
                 if unknown_link == info.BestBuy_Link_Cart:
-                    emails('Auto-Cart Success',
-                           'Pre Verify Carting (Testing Result)')
+                    email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+                    events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
                     return False
 
                 else:
-                    pass
+                    continue
 
         return True
 
     except Exception as AutoAdd_ScriptError:
 
-        emails('Auto-Cart Error', 'cart_wait Script Error')
-        events_log('errors.txt', 'Carting Script Error' + '\n' + str(AutoAdd_ScriptError))
+        email_bugs('Auto-Cart', 'User: ' + user_info.first_name + '\n' + ' Exception: ' + '[Cart Wait Error]')
+
+        events_log(errors, 'Carting Script Error: ' + str(AutoAdd_ScriptError))
         return False
 
 
@@ -246,7 +318,7 @@ def verify_account():
     try:
         password_verify = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.ID, 'fld-p1')))
         password_verify.click()
-        password_verify.send_keys(info.account_pass_bestbuy)
+        password_verify.send_keys(user_info.account_pass_bestbuy)
 
         continue_button = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CLASS_NAME, 'c-button')))
         continue_button.click()
@@ -269,23 +341,22 @@ def verify_account():
         return True
 
     except Exception as AutoVerify_ScriptError:
+        email_bugs('Auto-Cart',
+                   'User: ' + user_info.first_name + '\n' + ' Exception: ' + '[Two-Factor authentication failure]')
 
-        emails('Auto-Cart Error', '2FA Verify Script Error')
-
-        events_log('errors.txt', '2FA Verify Script Error' + '\n' + str(AutoVerify_ScriptError))
+        events_log(errors, 'Two-Factor authentication failure: ' + str(AutoVerify_ScriptError))
 
         return False
 
 
 def auto_cart_main():
-    emails('Auto-Cart Started', 'Inventory found')
-    events_log('stock.txt', 'In Stock ' + ProductNames.item_name)
+    email_form('Auto-Cart', 'Inventory Found', 'Starting Auto-Cart. Please watch for more updates.')
+
+    events_log(stock, 'In Stock ' + ProductNow.item_name)
 
     if cart_wait() is True:
 
         if verify_account() is True:
-
-            emails('Auto-Cart Update', 'Email Verification Passed')
 
             try:
                 # wait for stock pop-up status box (15 Seconds)
@@ -302,21 +373,20 @@ def auto_cart_main():
                             ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
                         # if message says 'Searching' - continue
-
-                        if inventory_status == 'Searching Inventory':
+                        if any(word in inventory_status.lower() for word in info.key_words_continue):
                             pass
 
                         # if message contains error key word - break loop
+                        elif any(word in inventory_status.lower() for word in info.key_words_stop):
 
-                        elif any(word in inventory_status.lower() for word in info.key_words):
-
-                            emails('Auto-Cart Update', inventory_status)
+                            email_form('Auto-Cart', inventory_status,
+                                       'Your selected store has no available inventory.')
 
                             message_value = False
 
                         sleep(3)
 
-                    except:
+                    except TimeoutException:
 
                         # if no pop-up box is displayed, check URL for status
 
@@ -325,34 +395,37 @@ def auto_cart_main():
                         # if URL is cart address, item is now in the cart
 
                         if unknown_link == info.BestBuy_Link_Cart:
-                            emails('Auto-Cart Success',
-                                   'Check Mobile App to finish your purchase')
+                            email_form('Auto-Cart', 'Cart Successes',
+                                       'Check your BestBuy Mobile App to finish your purchase.')
+
+                            events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
 
                             message_value = False
 
-            except:
+            except TimeoutException:
 
                 # if no pop-up box is displayed, check URL for status
 
                 unknown_link = driver.current_url
 
                 if unknown_link == info.BestBuy_Link_Cart:
-                    emails('Auto-Cart Success',
-                           'Check Mobile App to finish your purchase')
+                    email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+
+                events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
 
 
 def main():
     driver.get(info.sign_in_link_bestbuy)
 
-    if account_login(info.account_email_bestbuy, info.account_pass_bestbuy) is True:
+    if account_login(user_info.account_email_bestbuy, user_info.account_pass_bestbuy) is True:
 
         driver.get(info.location_link_bestbuy)
 
-        if set_store_location(info.target_store_zip) is True:
+        if set_store_location(user_info.target_store_zip) is True:
 
-            events_log('log.txt', 'Bot Successfully Started')
+            events_log(log, 'Bot Successfully Started')
 
-            url_list = info.item_links_bestbuy
+            url_list = user_info.item_links_bestbuy
 
             while len(url_list) != 0:
 
@@ -361,7 +434,7 @@ def main():
                     driver.get(i)
 
                     try:
-                        add_to_cart = WebDriverWait(driver, 10).until(
+                        add_to_cart = WebDriverWait(driver, 5).until(
                             ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
                         add_to_cart.click()
 
@@ -371,12 +444,16 @@ def main():
 
                         product_name = WebDriverWait(driver, 10).until(
                             ec.presence_of_element_located((By.CLASS_NAME, "heading-5"))).text
-
                         # update class name for emails
+                        ProductNow.item_name = product_name
 
-                        ProductNames.item_name = product_name
+                        product_image = WebDriverWait(driver, 10).until(
+                            ec.presence_of_element_located((By.CLASS_NAME, "primary-image"))).get_attribute("src")
 
-                    except:
+                        ProductNow.item_image_link = product_image
+
+                    except TimeoutException:
+
                         continue
 
                     auto_cart_main()
@@ -385,11 +462,3 @@ def main():
     driver.close()
     sleep(1)
     driver.quit()
-
-
-if __name__ == '__main__':
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')
-    driver = uc.Chrome(options=chrome_options)
-
-    main()
