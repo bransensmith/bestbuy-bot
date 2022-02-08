@@ -17,8 +17,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 # path to file
 import core_info
-
-# path to file
 import user_info
 
 # full path to files
