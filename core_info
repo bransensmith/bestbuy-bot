@@ -4,7 +4,6 @@ debug_email = ''
 key_words_stop = ['out of stock', 'sold out', 'not available']
 key_words_continue = ['searching inventory']
 
-names1 = ['']
 
 sign_in_link_bestbuy = 'https://www.bestbuy.com/identity/global/signin'
 location_link_bestbuy = 'https://www.bestbuy.com/site/store-locator'
