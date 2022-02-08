@@ -15,7 +15,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-import info as info
+import core_info
+import user_info
 
 # full path to files
 errors = 'errors.txt'
@@ -26,8 +27,6 @@ carted = 'carted.txt'
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--headless')
 driver = uc.Chrome(options=chrome_options)
-
-global user_info
 
 
 # updates are beyond this point
@@ -41,11 +40,11 @@ def email_bugs(subject, body):
     msg['subject'] = subject
 
     msg.set_content = body
-    msg['to'] = info.debug_email
-    user = info.outgoing_gmail_username
+    msg['to'] = core_info.debug_email
+    user = core_info.outgoing_gmail_username
     msg['from'] = user
 
-    password = info.outgoing_gmail_app_pass
+    password = core_info.outgoing_gmail_app_pass
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(user, password)
@@ -98,9 +97,9 @@ def email_form(subject, main_alert, more_info):
         """, subtype='html')
 
     msg['to'] = user_info.personal_email
-    user = info.outgoing_gmail_username
+    user = core_info.outgoing_gmail_username
     msg['from'] = user
-    password = info.outgoing_gmail_app_pass
+    password = core_info.outgoing_gmail_app_pass
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
@@ -111,7 +110,7 @@ def email_form(subject, main_alert, more_info):
 
 
 def fetch_email():
-    imap = imaplib.IMAP4_SSL(info.imap_url)
+    imap = imaplib.IMAP4_SSL(core_info.imap_url)
     imap.login(user_info.personal_gmail_username, user_info.personal_gmail_app_pass)
     imap.select('INBOX')
 
@@ -284,19 +283,19 @@ def cart_wait():
                 inventory_status = WebDriverWait(driver, 10).until(
                     ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
-                if any(word in inventory_status.lower() for word in info.key_words_stop):
+                if any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
                     email_form('Auto-Cart', inventory_status, 'Your selected store has no available inventory.')
                     return False
 
-                elif any(word in inventory_status.lower() for word in info.key_words_continue):
+                elif any(word in inventory_status.lower() for word in core_info.key_words_continue):
 
                     continue
 
             except TimeoutException:
 
                 unknown_link = driver.current_url
-                if unknown_link == info.BestBuy_Link_Cart:
+                if unknown_link == core_info.BestBuy_Link_Cart:
                     email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
                     events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
                     return False
@@ -373,11 +372,11 @@ def auto_cart_main():
                             ec.presence_of_element_located((By.CLASS_NAME, "heading-3"))).text
 
                         # if message says 'Searching' - continue
-                        if any(word in inventory_status.lower() for word in info.key_words_continue):
+                        if any(word in inventory_status.lower() for word in core_info.key_words_continue):
                             pass
 
                         # if message contains error key word - break loop
-                        elif any(word in inventory_status.lower() for word in info.key_words_stop):
+                        elif any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
                             email_form('Auto-Cart', inventory_status,
                                        'Your selected store has no available inventory.')
@@ -394,7 +393,7 @@ def auto_cart_main():
 
                         # if URL is cart address, item is now in the cart
 
-                        if unknown_link == info.BestBuy_Link_Cart:
+                        if unknown_link == core_info.BestBuy_Link_Cart:
                             email_form('Auto-Cart', 'Cart Successes',
                                        'Check your BestBuy Mobile App to finish your purchase.')
 
@@ -408,18 +407,18 @@ def auto_cart_main():
 
                 unknown_link = driver.current_url
 
-                if unknown_link == info.BestBuy_Link_Cart:
+                if unknown_link == core_info.BestBuy_Link_Cart:
                     email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
 
                 events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
 
 
 def main():
-    driver.get(info.sign_in_link_bestbuy)
+    driver.get(core_info.sign_in_link_bestbuy)
 
     if account_login(user_info.account_email_bestbuy, user_info.account_pass_bestbuy) is True:
 
-        driver.get(info.location_link_bestbuy)
+        driver.get(core_info.location_link_bestbuy)
 
         if set_store_location(user_info.target_store_zip) is True:
 
