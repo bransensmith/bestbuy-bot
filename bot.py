@@ -277,7 +277,7 @@ def cart_wait():
 
                 if any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
-                    html_email('Auto-Cart', inventory_status, 'Your selected store has no available inventory.')
+                    html_email('Auto-Cart', inventory_status + '.', 'Your selected store has no available inventory.')
                     return False
 
                 elif any(word in inventory_status.lower() for word in core_info.key_words_continue):
@@ -288,7 +288,7 @@ def cart_wait():
 
                 unknown_link = driver.current_url
                 if unknown_link == core_info.BestBuy_Link_Cart:
-                    html_email('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+                    html_email('Auto-Cart', 'Bot Success!', 'Check your BestBuy Mobile App to finish your purchase.')
                     events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
                     return False
 
@@ -342,7 +342,7 @@ def verify_account():
 
 
 def auto_cart_main():
-    html_email('Auto-Cart', 'Inventory Found', 'Starting Auto-Cart. Please watch for more updates.')
+    html_email('Auto-Cart', 'Inventory Found!', 'Starting Auto-Cart. Please watch for more updates.')
 
     events_log(stock, 'In Stock ' + ProductNow.item_name)
 
@@ -371,7 +371,7 @@ def auto_cart_main():
                         # if message contains error key word - break loop
                         elif any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
-                            html_email('Auto-Cart', inventory_status,
+                            html_email('Auto-Cart', inventory_status + '.',
                                        'Your selected store has no available inventory.')
 
                             message_value = False
@@ -387,7 +387,7 @@ def auto_cart_main():
                         # if URL is cart address, item is now in the cart
 
                         if unknown_link == core_info.BestBuy_Link_Cart:
-                            html_email('Auto-Cart', 'Cart Successes',
+                            html_email('Auto-Cart', 'Bot Success!',
                                        'Check your BestBuy Mobile App to finish your purchase.')
 
                             events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
@@ -401,7 +401,7 @@ def auto_cart_main():
                 unknown_link = driver.current_url
 
                 if unknown_link == core_info.BestBuy_Link_Cart:
-                    html_email('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+                    html_email('Auto-Cart', 'Bot Success!', 'Check your BestBuy Mobile App to finish your purchase.')
 
                 events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
 
