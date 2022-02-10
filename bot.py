@@ -37,7 +37,6 @@ class ProductNow:
 
 
 def email_bugs(subject, body):
-
     msg = EmailMessage()
     msg.set_content(body)
 
@@ -56,8 +55,7 @@ def email_bugs(subject, body):
     server.quit()
 
 
-
-def email_form(subject, main_alert, more_info):
+def html_email(subject, main_alert, more_info):
     personal_info = (user_info.first_name + ' | ' + user_info.target_store_name + ', ' + user_info.target_store_zip)
 
     image_link = ProductNow.item_image_link
@@ -70,32 +68,22 @@ def email_form(subject, main_alert, more_info):
         <html>
             <body>
                  <div style="border-radius: 10px; background-color:#eee;padding:5px">
-
                         <h2 style="text-align:center; color:red">{main_alert}</h2>
                     </div>
-
                 <table width="100%" border="0" cellspacing="0" cellpadding="20">
                     <tr>
                         <td align="center">
-
                             <img style="max-height:200px; max-width:200px;" src="{image_link}">
                             <p style="font-size:12px">{item_name}</p>
-
                         </td>
                     </tr>
                 </table>
                     <div style="text-align:center">
-
                         <h2 style="background-color: #FFFF00;">*** Status ***</h2>
-
                         <li>{more_info}</li>
-
                     </div>
-
                     <div style="text-align:center; font-size:15px; padding-top:20px">
-
                         <p style="color:grey;">{personal_info}</p>
-
                     </div
             </body>
         """, subtype='html')
@@ -289,7 +277,7 @@ def cart_wait():
 
                 if any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
-                    email_form('Auto-Cart', inventory_status, 'Your selected store has no available inventory.')
+                    html_email('Auto-Cart', inventory_status, 'Your selected store has no available inventory.')
                     return False
 
                 elif any(word in inventory_status.lower() for word in core_info.key_words_continue):
@@ -300,7 +288,7 @@ def cart_wait():
 
                 unknown_link = driver.current_url
                 if unknown_link == core_info.BestBuy_Link_Cart:
-                    email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+                    html_email('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
                     events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
                     return False
 
@@ -314,6 +302,7 @@ def cart_wait():
         email_bugs('Auto-Cart', 'User: ' + user_info.first_name + '\n' + ' Exception: ' + '[Cart Wait Error]')
 
         events_log(errors, 'Carting Script Error: ' + str(AutoAdd_ScriptError))
+
         return False
 
 
@@ -353,7 +342,7 @@ def verify_account():
 
 
 def auto_cart_main():
-    email_form('Auto-Cart', 'Inventory Found', 'Starting Auto-Cart. Please watch for more updates.')
+    html_email('Auto-Cart', 'Inventory Found', 'Starting Auto-Cart. Please watch for more updates.')
 
     events_log(stock, 'In Stock ' + ProductNow.item_name)
 
@@ -382,7 +371,7 @@ def auto_cart_main():
                         # if message contains error key word - break loop
                         elif any(word in inventory_status.lower() for word in core_info.key_words_stop):
 
-                            email_form('Auto-Cart', inventory_status,
+                            html_email('Auto-Cart', inventory_status,
                                        'Your selected store has no available inventory.')
 
                             message_value = False
@@ -398,7 +387,7 @@ def auto_cart_main():
                         # if URL is cart address, item is now in the cart
 
                         if unknown_link == core_info.BestBuy_Link_Cart:
-                            email_form('Auto-Cart', 'Cart Successes',
+                            html_email('Auto-Cart', 'Cart Successes',
                                        'Check your BestBuy Mobile App to finish your purchase.')
 
                             events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
@@ -412,56 +401,63 @@ def auto_cart_main():
                 unknown_link = driver.current_url
 
                 if unknown_link == core_info.BestBuy_Link_Cart:
-                    email_form('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
+                    html_email('Auto-Cart', 'Cart Successes', 'Check your BestBuy Mobile App to finish your purchase.')
 
                 events_log(carted, user_info.first_name + ' - Successfully carted: ' + ProductNow.item_name)
 
 
 def main():
-    driver.get(core_info.sign_in_link_bestbuy)
+    for attempt_count in range(2):
 
-    if account_login(user_info.account_email_bestbuy, user_info.account_pass_bestbuy) is True:
+        driver.get(core_info.sign_in_link_bestbuy)
 
-        driver.get(core_info.location_link_bestbuy)
+        if account_login(user_info.account_email_bestbuy, user_info.account_pass_bestbuy) is True:
 
-        if set_store_location(user_info.target_store_zip) is True:
+            driver.get(core_info.location_link_bestbuy)
 
-            events_log(log, 'Bot Successfully Started')
+            if set_store_location(user_info.target_store_zip) is True:
 
-            url_list = user_info.item_links_bestbuy
+                events_log(log, 'Bot Successfully Started')
 
-            while len(url_list) != 0:
+                url_list = user_info.item_links_bestbuy
 
-                for i in url_list:
+                while len(url_list) != 0:
 
-                    driver.get(i)
+                    for i in url_list:
 
-                    try:
-                        add_to_cart = WebDriverWait(driver, 5).until(
-                            ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
-                        add_to_cart.click()
+                        driver.get(i)
 
-                        pop_up_box = WebDriverWait(driver, 10).until(
-                            ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
-                        pop_up_box.click()
+                        try:
+                            add_to_cart = WebDriverWait(driver, 5).until(
+                                ec.element_to_be_clickable((By.CSS_SELECTOR, ".add-to-cart-button")))
+                            add_to_cart.click()
 
-                        product_name = WebDriverWait(driver, 10).until(
-                            ec.presence_of_element_located((By.CLASS_NAME, "heading-5"))).text
-                        # update class name for emails
-                        ProductNow.item_name = product_name
+                            pop_up_box = WebDriverWait(driver, 10).until(
+                                ec.presence_of_element_located((By.CLASS_NAME, "c-modal-close-icon")))
+                            pop_up_box.click()
 
-                        product_image = WebDriverWait(driver, 10).until(
-                            ec.presence_of_element_located((By.CLASS_NAME, "primary-image"))).get_attribute("src")
+                            product_name = WebDriverWait(driver, 10).until(
+                                ec.presence_of_element_located((By.CLASS_NAME, "heading-5"))).text
+                            # update class name for emails
+                            ProductNow.item_name = product_name
 
-                        ProductNow.item_image_link = product_image
+                            product_image = WebDriverWait(driver, 10).until(
+                                ec.presence_of_element_located((By.CLASS_NAME, "primary-image"))).get_attribute("src")
 
-                    except TimeoutException:
+                            ProductNow.item_image_link = product_image
 
-                        continue
+                        except TimeoutException:
 
-                    auto_cart_main()
-                    url_list.remove(i)
+                            continue
 
-    driver.close()
-    sleep(1)
+                        auto_cart_main()
+                        url_list.remove(i)
+
+                break
+
+        # if premature error - retry max of 2 times
+        attempt_count += 1
+        driver.close()
+        sleep(15)
+
     driver.quit()
