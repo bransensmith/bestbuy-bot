@@ -37,21 +37,24 @@ class ProductNow:
 
 
 def email_bugs(subject, body):
-    msg = EmailMessage()
-    msg['subject'] = subject
 
-    msg.set_content = body
+    msg = EmailMessage()
+    msg.set_content(body)
+
+    msg['subject'] = ('[Alert] ' + subject)
     msg['to'] = core_info.debug_email
+
     user = core_info.outgoing_gmail_username
     msg['from'] = user
-
     password = core_info.outgoing_gmail_app_pass
+
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
     server.login(user, password)
     server.send_message(msg)
 
     server.quit()
+
 
 
 def email_form(subject, main_alert, more_info):
